@@ -279,6 +279,17 @@ details.ref.flash{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-s
 .qtext .stem{font-family:Spectral,Georgia,serif;font-size:18.5px}
 
 /* choices */
+details.fsheet{border:1px solid var(--rule);border-radius:8px;background:var(--surface-2);
+  margin:0 0 16px;padding:0}
+details.fsheet>summary{cursor:pointer;padding:8px 12px;font:12px ui-monospace,"IBM Plex Mono",monospace;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--faint);list-style:none;user-select:none}
+details.fsheet>summary::-webkit-details-marker{display:none}
+details.fsheet>summary::before{content:"\25B8 ";display:inline-block;transition:transform .12s}
+details.fsheet[open]>summary::before{transform:rotate(90deg)}
+details.fsheet>summary:hover{color:var(--ink)}
+details.fsheet .frow{padding:10px 14px;border-top:1px solid var(--rule)}
+details.fsheet .fname{font:12px ui-monospace,"IBM Plex Mono",monospace;color:var(--faint);margin-bottom:5px}
+details.fsheet .fbody{font-size:15px;line-height:1.9}
 .choices{display:flex;flex-direction:column;gap:8px}
 .choice{
   display:flex;gap:11px;align-items:flex-start;text-align:left;
@@ -525,7 +536,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
       <div class="head-main">
     <p class="eyebrow">UNG · Larson &amp; Edwards ETF 8e</p>
     <h1>MATH 1450 Test 3 Drill</h1>
-    <p class="sub"><b>Test 3 is Monday, Oct 12</b>, and Graveman put the scope on the board: <b>3.6, 3.7, 4.1, 4.2 and 4.8</b>, with 3.7 boxed. Those five are on here, plus the <b>\(a^x\)</b> rules the class taught the same week, and the weights follow them, heaviest on related rates. Diffed against the book's own exercise sets, so the short mechanical blocks each section opens with are in here, not just the applications: \(x\) and \(y\) related by an equation, a point moving along a curve, and the differential of a product, quotient, radical or trig function. <b>Factoring is on the test and is not in this drill</b>, and neither are 3.7's long ones (pool, trough, winch, machine rod), on Graveman's word that the long problems are out. The test is <b>mixed</b>, so the drill now serves <b>true/false, multiple choice and written work</b> together, all three on by default. Use the <b>Format</b> chips to drop to one of them. The mock test is shaped like the real paper: 8 true/false, 6 multiple choice, 6 show-your-work. When a problem comes up that you do not follow, hit <b>Save for review</b>: it is kept on the <b>Saved</b> tab with its own numbers and its own worked solution, and <b>More like this</b> locks the drill to that one problem type until it sticks. <b>Endless practice</b> draws from verified templates in three difficulty levels, filterable by level and by topic (matching any of your topics or all of them).  Newton's Method and 4.3 through 4.7 are still loaded and one chip away, because they are coming on a later test, but they are off by default.</p>
+    <p class="sub"><b>Test 3 is Monday, Oct 12</b>, and Graveman put the scope on the board: <b>3.6, 3.7, 4.1, 4.2 and 4.8</b>, with 3.7 boxed. Those five are on here, plus the <b>\(a^x\)</b> rules the class taught the same week, and the weights follow them, heaviest on related rates. Diffed against the book's own exercise sets, so the short mechanical blocks each section opens with are in here, not just the applications: \(x\) and \(y\) related by an equation, a point moving along a curve, and the differential of a product, quotient, radical or trig function. Every problem now carries a collapsed <b>Formula sheet</b> with the lines that problem needs, the way the real one sits next to you during the test. <b>Two things are on the test and not in here</b>: factoring, and anything that asks you to READ A GRAPH or a table of values, which cannot be generated. Save any of those you hit in class and send them over. 3.7's long problems (pool, trough, winch, machine rod) are left out on Graveman's word that the long ones are off this test. The test is <b>mixed</b>, so the drill now serves <b>true/false, multiple choice and written work</b> together, all three on by default. Use the <b>Format</b> chips to drop to one of them. The mock test is shaped like the real paper: 8 true/false, 6 multiple choice, 6 show-your-work. When a problem comes up that you do not follow, hit <b>Save for review</b>: it is kept on the <b>Saved</b> tab with its own numbers and its own worked solution, and <b>More like this</b> locks the drill to that one problem type until it sticks. <b>Endless practice</b> draws from verified templates in three difficulty levels, filterable by level and by topic (matching any of your topics or all of them).  Newton's Method and 4.3 through 4.7 are still loaded and one chip away, because they are coming on a later test, but they are off by default.</p>
       </div>
       <aside class="contact-note">
         <p class="cn-kicker">Read this</p>
@@ -6845,6 +6856,272 @@ GX("mr8diff","4.8","mc",2,["differentials","product"],()=>{
 });
 
 function shufG(a){ for(let i=a.length-1;i>0;i--){ const j=R(0,i); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+/* ============ THE SHAPES THE BOOK HAS AND THE DRILL DID NOT ============
+   A second diff, run against what each section's exercise set actually
+   contains rather than against the practice quiz. Three findings, all of them
+   short mechanical problems, which is the category Graveman said the test
+   keeps:
+
+     4.2 had no trig and no radicals. Every Rolle and MVT problem was a
+         polynomial, so the one real wrinkle in the section, a trig equation
+         with SEVERAL solutions inside the interval, never came up.
+     4.1 had one radical and one trig and no rational function at all.
+     4.8's approximation template only ever did square roots.
+
+   Plus more inverse-function derivatives that are not inverse trig, since
+   (f^-1)'(a) = 1/f'(f^-1(a)) is the reciprocal idea the section is built on
+   and the drill was asking it almost entirely through arcsin and arctan. */
+
+const MORE = [];
+function VX(id, s, t, lvl, tags, make){ MORE.push({id:id, s:s, t:t, lvl:lvl, tags:tags, make:make}); }
+
+/* ---------- 4.2 · Rolle and MVT on a trig function ----------
+   The one that behaves differently from a polynomial: cos c = 0 has more than
+   one solution in the interval, and the book wants all of them. */
+VX("v2trig","4.2","fr",2,["mvt","trig"],()=>{
+  const row = pk([
+    {ftex:"\\sin x", f:x=>Math.sin(x), fp:x=>Math.cos(x), fptex:"\\cos x",
+     a:0, b:2*Math.PI, aTex:"0", bTex:"2\\pi",
+     cs:[Math.PI/2, 3*Math.PI/2], csTex:["\\dfrac{\\pi}{2}","\\dfrac{3\\pi}{2}"],
+     eq:"\\cos c=0", why:"Cosine is zero at \\(\\dfrac{\\pi}{2}\\) and again at \\(\\dfrac{3\\pi}{2}\\). Both are inside \\(\\left(0,2\\pi\\right)\\), so BOTH count."},
+    {ftex:"\\cos x", f:x=>Math.cos(x), fp:x=>-Math.sin(x), fptex:"-\\sin x",
+     a:0, b:2*Math.PI, aTex:"0", bTex:"2\\pi",
+     cs:[Math.PI], csTex:["\\pi"],
+     eq:"-\\sin c=0", why:"Sine is zero at \\(0\\), \\(\\pi\\) and \\(2\\pi\\), but only \\(\\pi\\) is strictly INSIDE the interval. The endpoints never count as the \\(c\\) the theorem promises."},
+    {ftex:"\\sin 2x", f:x=>Math.sin(2*x), fp:x=>2*Math.cos(2*x), fptex:"2\\cos 2x",
+     a:0, b:Math.PI, aTex:"0", bTex:"\\pi",
+     cs:[Math.PI/4, 3*Math.PI/4], csTex:["\\dfrac{\\pi}{4}","\\dfrac{3\\pi}{4}"],
+     eq:"2\\cos 2c=0", why:"\\(\\cos 2c=0\\) means \\(2c=\\dfrac{\\pi}{2}\\) or \\(2c=\\dfrac{3\\pi}{2}\\), so \\(c=\\dfrac{\\pi}{4}\\) or \\(c=\\dfrac{3\\pi}{4}\\). Solving for \\(2c\\) first and halving at the END is what keeps both."},
+    {ftex:"\\cos 2x", f:x=>Math.cos(2*x), fp:x=>-2*Math.sin(2*x), fptex:"-2\\sin 2x",
+     a:0, b:Math.PI, aTex:"0", bTex:"\\pi",
+     cs:[Math.PI/2], csTex:["\\dfrac{\\pi}{2}"],
+     eq:"-2\\sin 2c=0", why:"\\(\\sin 2c=0\\) gives \\(2c=0,\\pi,2\\pi\\), so \\(c=0,\\dfrac{\\pi}{2},\\pi\\). Only \\(\\dfrac{\\pi}{2}\\) is strictly inside."}
+  ]);
+  const fa = row.f(row.a);
+  return {sig:["v2trig",row.ftex],
+    q:"Verify that Rolle's Theorem applies to \\(f(x)="+row.ftex+"\\) on \\(\\left["+row.aTex+","+row.bTex+"\\right]\\), then find every value of \\(c\\) the theorem guarantees.",
+    st:[
+      {m:"Check the three hypotheses first. \\("+row.ftex+"\\) is continuous everywhere and differentiable everywhere, so the only one to verify is the equal-heights condition.",w:"Trig functions are smooth, so for Rolle the only question is ever whether the two ends match."},
+      {m:"\\(f\\left("+row.aTex+"\\right)="+(+fa.toFixed(6))+"\\) and \\(f\\left("+row.bTex+"\\right)="+(+row.f(row.b).toFixed(6))+"\\), so they are equal and Rolle applies.",w:""},
+      {m:"\\(f'(x)="+row.fptex+"\\). Set it to zero: \\("+row.eq+"\\)",w:"Rolle promises \\(f'(c)=0\\), a horizontal tangent.", solve:1},
+      {m:"\\(c="+row.csTex.join("\\) and \\(c=")+"\\)",w:row.why},
+      {m:"So the theorem is satisfied at \\(\\mathbf{c="+row.csTex.join(",\;")+"}\\).",w:"A polynomial usually hands you one \\(c\\). A trig function on a full period often hands you two, and losing one of them is the way this question is missed."}
+    ],
+    chk:()=>Math.abs(fa-row.f(row.b))<1e-9
+        && checkMVT(row.f, row.fp, row.a, row.b, row.cs)
+        && checkCriticalComplete(row.fp, row.cs, row.a, row.b, 4000)};
+});
+
+/* ---------- 4.2 · a radical, where differentiability is the live question ---------- */
+VX("v2radical","4.2","fr",3,["mvt"],()=>{
+  const which = pk(["cube","twothirds"]);
+  if(which==="cube"){
+    /* f(x) = x - x^(1/3) on [0,1]: f(0)=f(1)=0, Rolle applies on the closed
+       interval even though f' blows up at 0, because 0 is an ENDPOINT. */
+    const f  = x => x - Math.cbrt(x);
+    const fp = x => 1 - 1/(3*Math.pow(Math.cbrt(x),2));
+    const c  = Math.pow(1/3, 1.5);                      // (1/3)^{3/2}
+    return {sig:["v2radical","cube"],
+      q:"Verify that Rolle's Theorem applies to \\(f(x)=x-\\sqrt[3]{x}\\) on \\(\\left[0,1\\right]\\), then find the value of \\(c\\) it guarantees.",
+      st:[
+        {m:"\\(f(0)=0-0=0\\) and \\(f(1)=1-1=0\\), so the ends match.",w:""},
+        {m:"\\(f\\) is continuous on \\(\\left[0,1\\right]\\). Its derivative blows up at \\(x=0\\), but \\(0\\) is an ENDPOINT, and Rolle only needs differentiability on the OPEN interval \\(\\left(0,1\\right)\\).",w:"This is the whole point of the problem. Continuity is required on the closed interval, differentiability only on the open one, and a radical is exactly where that distinction bites."},
+        {m:"\\(f(x)=x-x^{1/3}\\), so \\(f'(x)=1-\\dfrac{1}{3}x^{-2/3}=1-\\dfrac{1}{3\\sqrt[3]{x^{2}}}\\)",w:""},
+        {m:"Set \\(f'(c)=0\\): \\(1=\\dfrac{1}{3\\sqrt[3]{c^{2}}}\\), so \\(3\\sqrt[3]{c^{2}}=1\\) and \\(\\sqrt[3]{c^{2}}=\\dfrac{1}{3}\\).",w:"", solve:1},
+        {m:"Cube both sides: \\(c^{2}=\\dfrac{1}{27}\\), so \\(c=\\dfrac{1}{3\\sqrt{3}}=\\dfrac{\\sqrt{3}}{9}\\approx"+(+c.toFixed(5))+"\\)",w:"Rationalize the denominator in the final answer. \\(\\dfrac{1}{3\\sqrt3}\\cdot\\dfrac{\\sqrt3}{\\sqrt3}=\\dfrac{\\sqrt3}{9}\\).", solve:1},
+        {m:"\\(\\mathbf{c=\\dfrac{\\sqrt{3}}{9}}\\), which is in \\(\\left(0,1\\right)\\).",w:"Take the positive root only: the negative one is outside the interval."}
+      ],
+      chk:()=>Math.abs(f(0)-f(1))<1e-12 && checkMVT(f, fp, 0, 1, [c])};
+  }
+  /* f(x) = x^(2/3) on [0,b]: MVT, and the c comes out of a cube root. */
+  const b = pk([1,8,27]);
+  const f  = x => Math.pow(Math.cbrt(x),2);
+  const fp = x => 2/(3*Math.cbrt(x));
+  const sec = f(b)/b;                                   // f(0)=0
+  const c = Math.pow(2/(3*sec), 3);
+  return {sig:["v2radical","twothirds",b],
+    q:"Apply the Mean Value Theorem to \\(f(x)=x^{2/3}\\) on \\(\\left[0,"+b+"\\right]\\) and find the value of \\(c\\) it guarantees.",
+    st:[
+      {m:"\\(f(x)=x^{2/3}=\\sqrt[3]{x^{2}}\\) is continuous everywhere, including at \\(0\\), and differentiable on \\(\\left(0,"+b+"\\right)\\). The derivative fails only at \\(x=0\\), which is an endpoint, so the Mean Value Theorem applies.",w:"Continuity on the CLOSED interval, differentiability on the OPEN one. A cusp sitting on an endpoint does not break either."},
+      {m:"Secant slope: \\(\\dfrac{f("+b+")-f(0)}{"+b+"-0}=\\dfrac{"+f(b)+"-0}{"+b+"}="+rTex(sec)+"\\)",w:"\\(f("+b+")="+b+"^{2/3}="+f(b)+"\\)."},
+      {m:"\\(f'(x)=\\dfrac{2}{3}x^{-1/3}=\\dfrac{2}{3\\sqrt[3]{x}}\\)",w:""},
+      {m:"Set \\(f'(c)\\) equal to the secant slope: \\(\\dfrac{2}{3\\sqrt[3]{c}}="+rTex(sec)+"\\)",w:"", solve:1},
+      {m:"\\(\\sqrt[3]{c}=\\dfrac{2}{3\\left("+rTex(sec)+"\\right)}\\), so \\(c\\approx\\mathbf{"+(+c.toFixed(5))+"}\\)",w:"Cube both sides at the end. Check it landed strictly inside \\(\\left(0,"+b+"\\right)\\), because an answer outside the interval means an algebra slip.", solve:1}
+    ],
+    chk:()=>checkMVT(f, fp, 0, b, [c])};
+});
+
+/* ---------- 4.1 · absolute extrema of a rational function ---------- */
+VX("v1rational","4.1","fr",3,["extrema","quotient"],()=>{
+  const k = pk([1,4,9]), m = Math.sqrt(k);              // f = x/(x^2+k), critical at x = +-sqrt(k)
+  const hi = m + R(1,3);
+  const f  = x => x/(x*x+k);
+  const fp = x => (k - x*x)/Math.pow(x*x+k,2);
+  const lo = 0;
+  const cand = [lo, m, hi];
+  const vals = cand.map(f);
+  const mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+  if(Math.abs(mx-mn) < 1e-9) return null;
+  const mxX = cand[vals.indexOf(mx)], mnX = cand[vals.indexOf(mn)];
+  const n = v => String(+v.toFixed(5));
+  return {sig:["v1rational",k,hi],
+    q:"Find the absolute maximum and absolute minimum of \\(f(x)=\\dfrac{x}{x^{2}+"+k+"}\\) on \\(\\left["+lo+","+hi+"\\right]\\).",
+    st:[
+      {m:"Quotient rule: \\(f'(x)=\\dfrac{\\left(x^{2}+"+k+"\\right)(1)-x(2x)}{\\left(x^{2}+"+k+"\\right)^{2}}\\)",w:"Bottom times the derivative of the top, minus top times the derivative of the bottom, all over the bottom squared."},
+      {m:"The numerator collapses: \\(x^{2}+"+k+"-2x^{2}="+k+"-x^{2}\\), so \\(f'(x)=\\dfrac{"+k+"-x^{2}}{\\left(x^{2}+"+k+"\\right)^{2}}\\)",w:"Always simplify the top before hunting for critical numbers. Setting the unsimplified version to zero is far more work."},
+      {m:"A fraction is zero when its TOP is zero: \\("+k+"-x^{2}=0\\), so \\(x=\\pm"+m+"\\). Only \\(x="+m+"\\) is in the interval.",w:"The denominator \\(\\left(x^{2}+"+k+"\\right)^{2}\\) is never zero, so there is no critical number from an undefined derivative here.", solve:1},
+      {m:"Candidates test. Evaluate at the critical number and at BOTH endpoints: "+cand.map((x,i)=>"\\(f("+n(x)+")="+n(vals[i])+"\\)").join(", "),w:"On a closed interval the endpoints are candidates just as much as the critical numbers."},
+      {m:"Absolute maximum \\(\\mathbf{"+n(mx)+"}\\) at \\(x="+n(mxX)+"\\); absolute minimum \\(\\mathbf{"+n(mn)+"}\\) at \\(x="+n(mnX)+"\\).",w:"The question asks for the extreme VALUES, so lead with those and give the locations beside them."}
+    ],
+    chk:()=>checkCritical(f, fp, [m], lo, hi)
+        && checkCriticalComplete(fp, [m], lo, hi, 4000)
+        && checkAbsExtreme(f, lo, hi, mnX, mn, mxX, mx)};
+});
+
+/* ---------- 4.1 · absolute extrema of a radical ---------- */
+VX("v1radical","4.1","fr",3,["extrema","chain"],()=>{
+  const a = pk([2,3,4,5,6,7,8,10]);                     // f = x*sqrt(a^2 - x^2) on [-a, a]
+  const A = a*a;
+  const f  = x => x*Math.sqrt(Math.max(0, A - x*x));
+  const fp = x => (A - 2*x*x)/Math.sqrt(A - x*x);
+  const c = a/Math.SQRT2;
+  const cand = [-a, -c, c, a];
+  const vals = cand.map(f);
+  const mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+  const mxX = cand[vals.indexOf(mx)], mnX = cand[vals.indexOf(mn)];
+  const n = v => String(+v.toFixed(5));
+  const exact = A/2;
+  return {sig:["v1radical",a],
+    q:"Find the absolute maximum and absolute minimum of \\(f(x)=x\\sqrt{"+A+"-x^{2}}\\) on \\(\\left[-"+a+","+a+"\\right]\\).",
+    st:[
+      {m:"Product rule, with the chain rule on the radical: \\(f'(x)=\\sqrt{"+A+"-x^{2}}+x\\cdot\\dfrac{-x}{\\sqrt{"+A+"-x^{2}}}\\)",w:"The derivative of \\(\\left("+A+"-x^{2}\\right)^{1/2}\\) brings down \\(-2x\\), which the \\(\\tfrac12\\) halves to \\(-x\\)."},
+      {m:"Put it over one denominator: \\(f'(x)=\\dfrac{\\left("+A+"-x^{2}\\right)-x^{2}}{\\sqrt{"+A+"-x^{2}}}=\\dfrac{"+A+"-2x^{2}}{\\sqrt{"+A+"-x^{2}}}\\)",w:"Combining over the common denominator is the step that makes the critical numbers readable."},
+      {m:"Zero on top: \\("+A+"-2x^{2}=0\\), so \\(x^{2}="+exact+"\\) and \\(x=\\pm\\dfrac{"+a+"}{\\sqrt{2}}\\approx\\pm"+(+c.toFixed(5))+"\\)",w:"", solve:1},
+      {m:"The derivative is also UNDEFINED at \\(x=\\pm"+a+"\\), where the radical is zero, but those are the endpoints and they are already on the candidate list.",w:"A derivative that fails to exist gives a critical number too, which is the half of the definition people forget."},
+      {m:"Evaluate at all four: "+cand.map((x,i)=>"\\(f("+n(x)+")="+n(vals[i])+"\\)").join(", "),w:""},
+      {m:"Absolute maximum \\(\\mathbf{"+n(mx)+"}\\) at \\(x="+n(mxX)+"\\); absolute minimum \\(\\mathbf{"+n(mn)+"}\\) at \\(x="+n(mnX)+"\\).",w:"The function is odd, so the maximum and the minimum are mirror images. That is a free check on the arithmetic."}
+    ],
+    chk:()=>checkAbsExtreme(f, -a, a, mnX, mn, mxX, mx)};
+});
+
+/* ---------- 4.8 · approximating a cube root ---------- */
+VX("v8cbrt","4.8","fr",2,["differentials"],()=>{
+  const base = pk([2,3,4,5]), b3 = base*base*base;
+  const off = pk([1,2,-1,-2,3,-3]);
+  const N = b3 + off;
+  if(N <= 0) return null;
+  const fp = 1/(3*base*base);
+  const est = base + fp*off;
+  const real = Math.cbrt(N);
+  return {sig:["v8cbrt",base,off],
+    q:"Use differentials to approximate \\(\\sqrt[3]{"+N+"}\\).",
+    st:[
+      {m:"Let \\(f(x)=\\sqrt[3]{x}=x^{1/3}\\) and pick a nearby \\(x\\) whose cube root you already know. \\("+b3+"\\) works, because \\(\\sqrt[3]{"+b3+"}="+base+"\\).",w:"Choosing the anchor is the whole skill here. It has to be close AND easy."},
+      {m:"\\(f'(x)=\\dfrac{1}{3}x^{-2/3}=\\dfrac{1}{3\\sqrt[3]{x^{2}}}\\), so \\(f'("+b3+")=\\dfrac{1}{3\\left("+(base*base)+"\\right)}=\\dfrac{1}{"+(3*base*base)+"}\\)",w:"\\(\\sqrt[3]{"+b3+"^{2}}="+base+"^{2}="+(base*base)+"\\)."},
+      {m:"\\(dx="+N+"-"+b3+"="+off+"\\), so \\(dy=f'("+b3+")\\,dx=\\dfrac{"+off+"}{"+(3*base*base)+"}\\approx"+(+(fp*off).toFixed(6))+"\\)",w:""},
+      {m:"\\(\\sqrt[3]{"+N+"}\\approx f("+b3+")+dy="+base+"+\\left("+(+(fp*off).toFixed(6))+"\\right)=\\mathbf{"+(+est.toFixed(5))+"}\\)",w:"The calculator says \\("+(+real.toFixed(6))+"\\), so the tangent line is off by \\("+(+Math.abs(est-real).toFixed(6))+"\\). It leans the same way every time, because the cube root is concave down here.", approx:1}
+    ],
+    chk:()=>{
+      const f = x => Math.cbrt(x);
+      return checkAt(f, fp, b3) && Math.abs(est - (base + fp*off)) < 1e-12 && Math.abs(est-real) < 0.2;
+    }};
+});
+
+/* ---------- 4.8 · approximating a trig value ---------- */
+VX("v8trig","4.8","fr",3,["differentials","trig"],()=>{
+  const row = pk([
+    {name:"\\sin", f:x=>Math.sin(x), fp:x=>Math.cos(x), fptex:"\\cos x",
+     a:0, aTex:"0", fa:0, faTex:"0", fpa:1, fpaTex:"1",
+     dx:pk([0.1,0.05,0.2,-0.1]), note:"\\(\\sin 0=0\\) and \\(\\cos 0=1\\), which is why \\(0\\) is the anchor every time for a small angle."},
+    {name:"\\cos", f:x=>Math.cos(x), fp:x=>-Math.sin(x), fptex:"-\\sin x",
+     a:0, aTex:"0", fa:1, faTex:"1", fpa:0, fpaTex:"0",
+     dx:pk([0.1,0.05,0.2]), note:"\\(f'(0)=-\\sin 0=0\\), so the differential is ZERO and the estimate is just \\(1\\). The tangent line at the top of the cosine curve is flat, which is exactly why cosine barely changes for a small angle."},
+    {name:"\\tan", f:x=>Math.tan(x), fp:x=>1/Math.pow(Math.cos(x),2), fptex:"\\sec^{2}x",
+     a:Math.PI/4, aTex:"\\dfrac{\\pi}{4}", fa:1, faTex:"1", fpa:2, fpaTex:"2",
+     dx:pk([0.02,0.05,-0.02,-0.05]), note:"\\(\\tan\\dfrac{\\pi}{4}=1\\) and \\(\\sec^{2}\\dfrac{\\pi}{4}=\\left(\\sqrt2\\right)^{2}=2\\)."}
+  ]);
+  const dy = row.fpa*row.dx;
+  const est = row.fa + dy;
+  const real = row.f(row.a + row.dx);
+  const xTex = row.aTex==="0" ? String(row.dx)
+             : "\\dfrac{\\pi}{4}"+(row.dx<0?"-":"+")+Math.abs(row.dx);
+  return {sig:["v8trig",row.name,String(row.dx)],
+    q:"Use differentials to approximate \\("+row.name+"\\left("+xTex+"\\right)\\), with the angle in radians.",
+    st:[
+      {m:"Let \\(f(x)="+row.name+" x\\) and anchor at \\(x="+row.aTex+"\\), where the value is known exactly.",w:row.note},
+      {m:"\\(f'(x)="+row.fptex+"\\), so \\(f'\\left("+row.aTex+"\\right)="+row.fpaTex+"\\)",w:"Every derivative formula for a trig function assumes RADIANS. A problem in degrees has to be converted first or the answer is meaningless."},
+      {m:"\\(dx="+row.dx+"\\), so \\(dy=f'\\left("+row.aTex+"\\right)dx="+row.fpaTex+"\\left("+row.dx+"\\right)="+(+dy.toFixed(6))+"\\)",w:""},
+      {m:"\\("+row.name+"\\left("+xTex+"\\right)\\approx f\\left("+row.aTex+"\\right)+dy="+row.faTex+"+\\left("+(+dy.toFixed(6))+"\\right)=\\mathbf{"+(+est.toFixed(6))+"}\\)",w:"The calculator gives \\("+(+real.toFixed(6))+"\\), so the tangent line misses by \\("+(+Math.abs(est-real).toFixed(6))+"\\).", approx:1}
+    ],
+    chk:()=>checkAt(row.f, row.fpa, row.a)
+        && Math.abs(row.f(row.a) - row.fa) < 1e-9
+        && Math.abs(est - (row.fa + row.fpa*row.dx)) < 1e-12};
+});
+
+/* ---------- 3.6 · the reciprocal idea, on functions that are not inverse trig ----------
+   (f^-1)'(a) = 1/f'(f^-1(a)). The drill was asking this almost entirely through
+   arcsin and arctan, which hides the fact that it works for ANY one-to-one f. */
+VX("v6recip","3.6","fr",2,["inverse"],()=>{
+  const row = pk([
+    {ftex:"x^{3}+"+0, skip:1},
+    {ftex:"x^{5}+2x-1", f:x=>Math.pow(x,5)+2*x-1, fp:x=>5*Math.pow(x,4)+2,
+     fptex:"5x^{4}+2", x0:1, lo:-3, hi:3,
+     mono:"\\(f'(x)=5x^{4}+2\\) is always positive, since \\(x^{4}\\ge 0\\). So \\(f\\) is strictly increasing and therefore one-to-one."},
+    {ftex:"\\sqrt{x-4}", f:x=>Math.sqrt(x-4), fp:x=>1/(2*Math.sqrt(x-4)),
+     fptex:"\\dfrac{1}{2\\sqrt{x-4}}", x0:8, lo:4.0001, hi:60,
+     mono:"\\(f'(x)=\\dfrac{1}{2\\sqrt{x-4}}>0\\) wherever it is defined, so \\(f\\) is strictly increasing on \\(\\left(4,\\infty\\right)\\) and therefore one-to-one."},
+    {ftex:"e^{x}+x", f:x=>Math.exp(x)+x, fp:x=>Math.exp(x)+1,
+     fptex:"e^{x}+1", x0:0, lo:-4, hi:4,
+     mono:"\\(f'(x)=e^{x}+1>0\\) for every \\(x\\), because \\(e^{x}\\) is always positive. So \\(f\\) is strictly increasing and therefore one-to-one."},
+    {ftex:"\\dfrac{x-1}{x+2}", f:x=>(x-1)/(x+2), fp:x=>3/Math.pow(x+2,2),
+     fptex:"\\dfrac{3}{\\left(x+2\\right)^{2}}", x0:1, lo:-1.9, hi:40,
+     mono:"\\(f'(x)=\\dfrac{3}{\\left(x+2\\right)^{2}}>0\\) wherever it is defined, so \\(f\\) is strictly increasing on each piece of its domain and therefore one-to-one there."},
+    {ftex:"x^{3}+2x+1", f:x=>x*x*x+2*x+1, fp:x=>3*x*x+2,
+     fptex:"3x^{2}+2", x0:1, lo:-4, hi:4,
+     mono:"\\(f'(x)=3x^{2}+2\\ge 2>0\\) for every \\(x\\), so \\(f\\) is strictly increasing and therefore one-to-one."}
+  ].filter(r=>!r.skip));
+  const a = row.f(row.x0);
+  if(!isFinite(a)) return null;
+  const slope = row.fp(row.x0);
+  const ans = 1/slope;
+  const n = v => rTex(v);
+  const aT = rTex(a), ansT = rTex(ans);
+  return {sig:["v6recip",row.ftex],
+    q:"Let \\(f(x)="+row.ftex+"\\). Show that \\(f\\) has an inverse, then find \\(\\left(f^{-1}\\right)'\\!\\left("+aT+"\\right)\\).",
+    st:[
+      {m:"A function has an inverse exactly when it is one-to-one, and the quickest way to show that is to show the derivative never changes sign.",w:"Say this explicitly in the write-up. The problem asks you to SHOW it, not assume it."},
+      {m:row.mono,w:""},
+      {m:"\\(\\left(f^{-1}\\right)'(a)=\\dfrac{1}{f'\\!\\left(f^{-1}(a)\\right)}\\)",w:"This is the reciprocal rule for inverses: the slope of \\(f^{-1}\\) at a point is the RECIPROCAL of the slope of \\(f\\) at the matching point. It has nothing to do with trig; the inverse trig formulas are just this rule applied six times."},
+      {m:"Find \\(f^{-1}\\!\\left("+aT+"\\right)\\) by asking which \\(x\\) gives \\(f(x)="+aT+"\\). Here \\(f\\left("+row.x0+"\\right)="+aT+"\\), so \\(f^{-1}\\!\\left("+aT+"\\right)="+row.x0+"\\).",w:"You never have to find a formula for \\(f^{-1}\\), which is the point of the rule. You only need the one input that lands on the given output.", solve:1},
+      {m:"\\(f'(x)="+row.fptex+"\\), so \\(f'\\left("+row.x0+"\\right)="+n(slope)+"\\)",w:""},
+      {m:"\\(\\left(f^{-1}\\right)'\\!\\left("+aT+"\\right)=\\dfrac{1}{"+n(slope)+"}=\\mathbf{"+ansT+"}\\)",w:"Sanity check: if \\(f\\) is climbing steeply then its inverse is nearly flat, and the reciprocal is what produces that."}
+    ],
+    chk:()=>checkFn(row.f, row.fp, [row.x0, row.x0+0.3])
+        && checkInvDeriv(row.f, a, row.lo, row.hi, ans)};
+});
+
+/* ---------- 3.6 · the same idea as multiple choice ---------- */
+VX("mv6recip","3.6","mc",1,["inverse"],()=>{
+  const x0 = nz(1,4), m = pk([2,3,4,5,8]), a = R(5,40);
+  const opts = [
+    {v:1/m,  ok:true},
+    {v:m,    ok:false},            // forgot to take the reciprocal
+    {v:1/x0, ok:false},            // reciprocal of the wrong number
+    {v:1/a,  ok:false}
+  ];
+  const seen = new Set();
+  for(const o of opts){ const k=+o.v.toFixed(8); if(seen.has(k)) return null; seen.add(k); }
+  const sh = []; opts.forEach(o=>sh.push(o));
+  for(let i=sh.length-1;i>0;i--){ const j=R(0,i); const t=sh[i]; sh[i]=sh[j]; sh[j]=t; }
+  const ai = sh.findIndex(o=>o.ok);
+  const fT = v => (Math.abs(v-Math.round(v))<1e-9) ? String(Math.round(v)) : fracTex(1, Math.round(1/v));
+  const pred = v => Math.abs(v - 1/m) < 1e-12;
+  return {sig:["mv6recip",x0,m,a],
+    q:"\\(f\\) is one-to-one and differentiable, with \\(f\\left("+x0+"\\right)="+a+"\\) and \\(f'\\left("+x0+"\\right)="+m+"\\). Then \\(\\left(f^{-1}\\right)'\\!\\left("+a+"\\right)=\\)",
+    c:sh.map(o=>"\\("+fT(o.v)+"\\)"), a:ai,
+    e:"\\(\\left(f^{-1}\\right)'(a)=\\dfrac{1}{f'\\!\\left(f^{-1}(a)\\right)}\\). Since \\(f\\left("+x0+"\\right)="+a+"\\), we have \\(f^{-1}\\!\\left("+a+"\\right)="+x0+"\\), so the answer is \\(\\dfrac{1}{f'\\left("+x0+"\\right)}=\\dfrac{1}{"+m+"}\\). The traps: giving \\("+m+"\\) itself, which is the slope of \\(f\\) and not of \\(f^{-1}\\); taking the reciprocal of the input \\("+x0+"\\) instead of the slope; and using the output \\("+a+"\\) in place of the slope.",
+    chk:()=>checkPropChoices(pred, sh[ai].v, sh.filter((o,i)=>i!==ai).map(o=>o.v))};
+});
 /* ============================ LEVELS AND TOPICS ============================
    Two filter axes on top of section and format.
 
@@ -7140,6 +7417,19 @@ Object.assign(TEMPLATE_W, {
 });
 GAPS.forEach(g=>{ TEMPLATE_META[g.id] = {lvl:g.lvl, tags:g.tags}; });
 
+/* ---- the second diff: shapes the sections have and the drill did not ----
+   4.2 had no trig and no radical, 4.1 had no rational function, and 4.8's
+   approximation only ever did square roots. All three are short mechanical
+   problems, which by Graveman's own rule makes them MORE likely on this test. */
+GENERATORS.push.apply(GENERATORS, MORE);
+Object.assign(TEMPLATE_W, {
+  v2trig:7, v2radical:5,
+  v1rational:6, v1radical:5,
+  v8cbrt:6, v8trig:5,
+  v6recip:7, mv6recip:5
+});
+MORE.forEach(g=>{ TEMPLATE_META[g.id] = {lvl:g.lvl, tags:g.tags}; });
+
 /* ---- eight more topic chips for the Chapter 4 material ---- */
 TOPIC_GROUPS.push(
   {id:"extrema",      name:"Extrema &amp; critical numbers", tags:["extrema"]},
@@ -7366,6 +7656,105 @@ if(REF32){
   for(let i=SECTIONS.length-1;   i>=0; i--) if(drop.has(SECTIONS[i].id))  SECTIONS.splice(i,1);
   drop.forEach(k=>delete SECTION_WEIGHT[k]);
 })();
+/* ============ THE FORMULA SHEET, ON THE PROBLEM THAT NEEDS IT ============
+   Jase gets a formula sheet on the test. Having the same formulas buried in the
+   Reference tab is not the same thing: on the test the sheet is sitting next to
+   the problem, so practising without it builds the wrong habit in both
+   directions. You want to be used to reaching for it, and used to which line
+   you are reaching for.
+
+   Each panel is attached by TAG, not by template, so a new template inherits
+   the right formulas from the tags it already declares. Collapsed by default so
+   it never gives the problem away. */
+
+const FORMULA_SHEET = [
+  {id:"invtrig", tags:["inverse","trig"], both:1, name:"Inverse trigonometric derivatives",
+   tex:"\\(\\dfrac{d}{dx}\\left[\\arcsin u\\right]=\\dfrac{u'}{\\sqrt{1-u^{2}}}\\qquad"
+      +"\\dfrac{d}{dx}\\left[\\arccos u\\right]=\\dfrac{-u'}{\\sqrt{1-u^{2}}}\\)<br>"
+      +"\\(\\dfrac{d}{dx}\\left[\\arctan u\\right]=\\dfrac{u'}{1+u^{2}}\\qquad"
+      +"\\dfrac{d}{dx}\\left[\\operatorname{arccot} u\\right]=\\dfrac{-u'}{1+u^{2}}\\)<br>"
+      +"\\(\\dfrac{d}{dx}\\left[\\operatorname{arcsec} u\\right]=\\dfrac{u'}{|u|\\sqrt{u^{2}-1}}\\qquad"
+      +"\\dfrac{d}{dx}\\left[\\operatorname{arccsc} u\\right]=\\dfrac{-u'}{|u|\\sqrt{u^{2}-1}}\\)"},
+
+  {id:"invfn", tags:["inverse"], name:"Derivative of an inverse function",
+   tex:"\\(\\left(f^{-1}\\right)'(a)=\\dfrac{1}{f'\\!\\left(f^{-1}(a)\\right)}\\) &nbsp; provided \\(f'\\!\\left(f^{-1}(a)\\right)\\ne 0\\)"},
+
+  {id:"trig", tags:["trig"], name:"Trigonometric derivatives",
+   tex:"\\(\\dfrac{d}{dx}\\left[\\sin u\\right]=u'\\cos u\\qquad\\dfrac{d}{dx}\\left[\\cos u\\right]=-u'\\sin u\\)<br>"
+      +"\\(\\dfrac{d}{dx}\\left[\\tan u\\right]=u'\\sec^{2}u\\qquad\\dfrac{d}{dx}\\left[\\cot u\\right]=-u'\\csc^{2}u\\)<br>"
+      +"\\(\\dfrac{d}{dx}\\left[\\sec u\\right]=u'\\sec u\\tan u\\qquad\\dfrac{d}{dx}\\left[\\csc u\\right]=-u'\\csc u\\cot u\\)"},
+
+  {id:"prodquot", tags:["product","quotient"], name:"Product and quotient rules",
+   tex:"\\(\\left(uv\\right)'=uv'+vu'\\qquad\\left(\\dfrac{u}{v}\\right)'=\\dfrac{vu'-uv'}{v^{2}}\\)"},
+
+  {id:"chain", tags:["chain"], name:"Chain and power rules",
+   tex:"\\(\\dfrac{d}{dx}\\left[f(u)\\right]=f'(u)\\,u'\\qquad\\dfrac{d}{dx}\\left[u^{n}\\right]=nu^{\\,n-1}u'\\)"},
+
+  {id:"rates", tags:["rates"], name:"Related rates",
+   tex:"\\(\\dfrac{dy}{dt}=\\dfrac{dy}{dx}\\cdot\\dfrac{dx}{dt}\\) &nbsp; Differentiate the relation with respect to \\(t\\); every variable drags out its own rate."},
+
+  {id:"solids", tags:["rates"], name:"Volume and area formulas",
+   tex:"Circle \\(A=\\pi r^{2}\\), \\(C=2\\pi r\\) &nbsp;·&nbsp; Sphere \\(V=\\tfrac43\\pi r^{3}\\), \\(S=4\\pi r^{2}\\)<br>"
+      +"Cone \\(V=\\tfrac13\\pi r^{2}h\\) &nbsp;·&nbsp; Cylinder \\(V=\\pi r^{2}h\\) &nbsp;·&nbsp; Cube \\(V=s^{3}\\), \\(S=6s^{2}\\)<br>"
+      +"Equilateral triangle \\(A=\\dfrac{\\sqrt{3}}{4}s^{2}\\) &nbsp;·&nbsp; Right triangle \\(a^{2}+b^{2}=c^{2}\\)"},
+
+  {id:"diff", tags:["differentials"], name:"Differentials",
+   tex:"\\(dy=f'(x)\\,dx\\qquad f(x+\\Delta x)\\approx f(x)+dy\\qquad L(x)=f(a)+f'(a)(x-a)\\)<br>"
+      +"Propagated error \\(\\Delta y\\approx dy\\) &nbsp;·&nbsp; Relative error \\(\\dfrac{dy}{y}\\) &nbsp;·&nbsp; Percent error \\(\\dfrac{dy}{y}\\times 100\\%\\)"},
+
+  {id:"mvt", tags:["mvt"], name:"Rolle's Theorem and the Mean Value Theorem",
+   tex:"<b>Rolle.</b> \\(f\\) continuous on \\(\\left[a,b\\right]\\), differentiable on \\(\\left(a,b\\right)\\), and \\(f(a)=f(b)\\) \\(\\Rightarrow\\) there is a \\(c\\) in \\(\\left(a,b\\right)\\) with \\(f'(c)=0\\).<br>"
+      +"<b>Mean Value.</b> \\(f\\) continuous on \\(\\left[a,b\\right]\\) and differentiable on \\(\\left(a,b\\right)\\) \\(\\Rightarrow\\) there is a \\(c\\) in \\(\\left(a,b\\right)\\) with \\(f'(c)=\\dfrac{f(b)-f(a)}{b-a}\\)."},
+
+  {id:"extrema", tags:["extrema"], name:"Extrema on a closed interval",
+   tex:"\\(c\\) is a <b>critical number</b> of \\(f\\) if \\(f'(c)=0\\) OR \\(f'(c)\\) does not exist, with \\(c\\) in the domain.<br>"
+      +"<b>Candidates test.</b> Evaluate \\(f\\) at every critical number in \\(\\left(a,b\\right)\\) AND at both endpoints. Largest value is the absolute maximum, smallest is the absolute minimum."},
+
+  {id:"bases", secs:["a^x"], name:"Bases other than \\(e\\)",
+   tex:"\\(\\dfrac{d}{dx}\\left[a^{u}\\right]=\\left(\\ln a\\right)a^{u}u'\\qquad\\dfrac{d}{dx}\\left[\\log_{a}u\\right]=\\dfrac{u'}{\\left(\\ln a\\right)u}\\)<br>"
+      +"\\(\\dfrac{d}{dx}\\left[e^{u}\\right]=e^{u}u'\\qquad\\dfrac{d}{dx}\\left[\\ln u\\right]=\\dfrac{u'}{u}\\)"}
+];
+
+/* Which panels a problem gets. Tags come from the template's own declaration, so
+   nothing has to be listed twice. "both" means every tag must be present, which
+   keeps the inverse-trig table off a plain (f^-1)'(a) problem. */
+function formulasFor(p){
+  const gs = (p.tid && typeof tagsOf === "function" ? (tagsOf(p.tid) || []) : [])
+             .concat(p.tags || []);
+  const out = [];
+  FORMULA_SHEET.forEach(F=>{
+    if(F.secs && F.secs.indexOf(p.s) >= 0){ out.push(F); return; }
+    if(!F.tags) return;
+    const hit = F.both ? F.tags.every(t=>gs.indexOf(t) >= 0)
+                       : F.tags.some(t=>gs.indexOf(t) >= 0);
+    if(hit) out.push(F);
+  });
+  /* The inverse-trig table already contains the point of the general inverse
+     rule, so showing both is noise. */
+  if(out.some(F=>F.id==="invtrig")){
+    const i = out.findIndex(F=>F.id==="trig");
+    if(i >= 0) out.splice(i,1);
+  }
+  return out.slice(0,3);
+}
+
+function formulaPanel(p){
+  const list = formulasFor(p);
+  if(!list.length) return null;
+  const d = document.createElement("details");
+  d.className = "fsheet";
+  const sum = document.createElement("summary");
+  sum.textContent = "Formula sheet" + (list.length>1 ? " ("+list.length+")" : "");
+  d.appendChild(sum);
+  list.forEach(F=>{
+    const row = document.createElement("div");
+    row.className = "frow";
+    row.innerHTML = "<div class='fname'>"+F.name+"</div><div class='fbody'>"+F.tex+"</div>";
+    d.appendChild(row);
+  });
+  d.addEventListener("toggle",()=>{ if(d.open) typeset(d); });
+  return d;
+}
 function weightedPick(items, wf){
   let total=0;
   for(const it of items) total += wf(it);
@@ -8024,6 +8413,11 @@ function renderCard(){
 
   card.appendChild(el("div","qtext","<span class='stem'>"+mathSafe(p.q)+"</span>"));
 
+  /* The formula sheet, collapsed, on the problem that needs it. Jase gets one on
+     the test, so practising without it trains the wrong habit. */
+  const fp_ = formulaPanel(p);
+  if(fp_) card.appendChild(fp_);
+
   // choices
   const wrap = el("div","choices");
   const opts = p.t==="tf" ? ["True","False"] : (p.t==="mc" ? p.c : null);
@@ -8188,7 +8582,7 @@ function buildFilters(){
   SECTIONS.forEach(s=>{
     const b = el("button","chip",s.id);
     b.title = s.name;
-    b.setAttribute("aria-pressed","true");
+    b.setAttribute("aria-pressed", activeSecs.has(s.id) ? "true" : "false");
     b.addEventListener("click",()=>{
       if(activeSecs.has(s.id)){ if(activeSecs.size===1) return; activeSecs.delete(s.id); }
       else activeSecs.add(s.id);
@@ -8846,6 +9240,8 @@ function buildSaved(){
       card.appendChild(list);
     }
     if(p.t === "tf") card.appendChild(el("p",null,"<b>Answer: "+(p.a?"True":"False")+"</b>"));
+    const fpS = formulaPanel(p);
+    if(fpS) card.appendChild(fpS);
 
     const sol = el("div","sol");
     sol.hidden = true;
