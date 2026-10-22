@@ -306,6 +306,11 @@ details.fsheet .fbody{font-size:15px;line-height:1.9}
 .gvt td{line-height:1.5}
 .gvt td.gvt-x{white-space:nowrap}
 .gvt tbody tr:nth-child(odd) td{background:var(--accent-soft)}
+/* the seven-item list: labels down the left, no header row */
+.gvt-list{min-width:0}
+.gvt-list td:first-child{white-space:nowrap;font-family:ui-monospace,"IBM Plex Mono",monospace;
+  font-size:12px;letter-spacing:.04em;color:var(--faint);width:1%}
+.gvt-list tbody tr:nth-child(odd) td{background:transparent}
 .gvt mjx-container{margin:0!important}
 .choices{display:flex;flex-direction:column;gap:8px}
 .choice{
@@ -1609,7 +1614,7 @@ function gvTest(lo, hi){
 }
 const gvSign = v => (Math.abs(v) < 1e-9 ? 0 : (v > 0 ? 1 : -1));
 const gvPM   = s => (s > 0 ? "pos" : s < 0 ? "neg" : "0");
-const gvCC   = s => (s > 0 ? "cc up" : "cc down");
+const gvCC   = s => (s > 0 ? "CC upward" : "CC downward");
 
 /* pts: the marked x-values, in increasing order. Each is
    {x, tex, und:true} for a point outside the domain, or {x, tex, ytex}
@@ -1670,6 +1675,52 @@ function gvRows(f, fp, f2, pts){
     head:["Ints and \\(x\\)-values","Test value","\\(f(x)\\)","Sign of \\(f'\\)","Sign of \\(f''\\)","Conclusion"],
     rows:rows
   }};
+}
+
+
+/* ---- the stripped-down tables, from practice quiz 4 (Oct 22) ----
+   When a problem is 4.3-only or 4.4-only he drops the table to ONE derivative
+   and leaves out the special-x rows, so it is intervals only:
+
+     Interval | Test Value | Sign of f'  | Conclusion      (problem 2)
+     Interval | Test Value | Sign of f'' | Conclusion      (problem 3)
+
+   brks: the x values that break the line, in increasing order, each
+   {x, tex} - critical numbers, inflection candidates and points outside the
+   domain alike, since all of them end an interval. */
+function gvIntervals(d, brks, head3, verdict){
+  const rows = [], n = brks.length;
+  const tx = p => (p.tex != null ? p.tex : String(p.x));
+  for(let i = 0; i <= n; i++){
+    const lo = i === 0 ? -Infinity : brks[i-1].x;
+    const hi = i === n ?  Infinity : brks[i].x;
+    const t  = gvTest(lo, hi);
+    const sg = gvSign(d(t));
+    rows.push([
+      "\\(\\left(" + (i === 0 ? "-\\infty" : tx(brks[i-1])) + "," +
+                   (i === n ? "\\infty"  : tx(brks[i])) + "\\right)\\)",
+      "\\(" + numTex(t) + "\\)",
+      gvPM(sg),
+      verdict(sg)
+    ]);
+  }
+  return {table:{head:["Interval","Test Value",head3,"Conclusion"], rows:rows}};
+}
+/* 4.3: sign of f' only */
+function gvRowsD1(fp, brks){
+  return gvIntervals(fp, brks, "Sign of \\(f'\\)",
+    s => "\\(f\\) is " + (s > 0 ? "increasing" : "decreasing"));
+}
+/* 4.4: sign of f'' only */
+function gvRowsD2(f2, brks){
+  return gvIntervals(f2, brks, "Sign of \\(f''\\)", s => gvCC(s));
+}
+
+/* ---- the seven-item list ----
+   Problems 1 and 4 of practice quiz 4 ask for exactly this list and nothing
+   else: no sign analysis, no table. It is its own question type. */
+function gvList(items){
+  return {table:{head:null, rows:items.map(p=>[p[0], p[1]])}};
 }
 const GENERATORS = [
 
@@ -4714,6 +4765,7 @@ C4("e3incdec","4.3",2,["firstderiv"],()=>{
       "\\(f'(x)="+polyTex([[6,"x^{2}"],[2*A,"x"],[B,""]])+"=6"+par(linTex(1,-c1))+par(linTex(1,-c2))+"\\)",
       "Critical numbers: \\(x="+c1+",\\ "+c2+"\\)",
       "Sign of \\(f'\\): \\(+\\) on \\(\\left(-\\infty,"+c1+"\\right)\\), \\(-\\) on \\(\\left("+c1+","+c2+"\\right)\\), \\(+\\) on \\(\\left("+c2+",\\infty\\right)\\)",
+      gvRowsD1(fp,[{x:c1},{x:c2}]),
       "Increasing on \\(\\left(-\\infty,"+c1+"\\right)\\) and \\(\\left("+c2+",\\infty\\right)\\)",
       "Decreasing on \\(\\left("+c1+","+c2+"\\right)\\)",
       "Relative maximum \\("+numTex(f(c1))+"\\) at \\(x="+c1+"\\); relative minimum \\("+numTex(f(c2))+"\\) at \\(x="+c2+"\\)"
@@ -4750,6 +4802,7 @@ C4("e3rational","4.3",3,["firstderiv","quotient"],()=>{
     paper:[
       "\\(f(x)="+cTex(a,"x")+pTex(k,"x^{-1}")+"\\), so \\(f'(x)="+a+"-\\dfrac{"+k+"}{x^{2}}=\\dfrac{"+a+"x^{2}-"+k+"}{x^{2}}\\)",
       "Critical numbers: \\(x=\\pm\\sqrt{"+fracTex(k,a)+"}\\approx\\pm"+numTex(c)+"\\). Also split at \\(x=0\\), not a critical number but outside the domain",
+      gvRowsD1(fp,[{x:-c,tex:"-"+numTex(c)},{x:0},{x:c,tex:numTex(c)}]),
       "Increasing on \\(\\left(-\\infty,-"+numTex(c)+"\\right)\\) and \\(\\left("+numTex(c)+",\\infty\\right)\\)",
       "Decreasing on \\(\\left(-"+numTex(c)+",0\\right)\\) and \\(\\left(0,"+numTex(c)+"\\right)\\)",
       "Relative maximum \\("+numTex(f(-c))+"\\) at \\(x\\approx"+numTex(-c)+"\\); relative minimum \\("+numTex(f(c))+"\\) at \\(x\\approx"+numTex(c)+"\\)",
@@ -4782,6 +4835,7 @@ C4("e4concav","4.4",2,["concavity"],()=>{
     paper:[
       "\\(f'(x)="+polyTex([[3*A,"x^{2}"],[2*B,"x"],[Cc,""]])+"\\), \\(f''(x)="+linTex(6*A,2*B)+"\\)",
       "\\(f''=0\\) at \\(x="+fracTex(-2*B,6*A)+"\\approx"+numTex(ip)+"\\)",
+      gvRowsD2(f2,[{x:ip,tex:fracTex(-2*B,6*A)}]),
       "Concave down on \\(\\left(-\\infty,"+fracTex(-2*B,6*A)+"\\right)\\)",
       "Concave up on \\(\\left("+fracTex(-2*B,6*A)+",\\infty\\right)\\)",
       "Sign of \\(f''\\) changes there, so the point of inflection is \\(\\left("+numTex(ip)+","+numTex(f(ip))+"\\right)\\)"
@@ -5729,6 +5783,7 @@ C4("e3quad","4.3",1,["firstderiv"],()=>{
     ],
     paper:[
       "\\(f'(x)="+polyTex([[2*a,"x"],[b,""]])+"\\), zero at \\(x="+v+"\\)",
+      gvRowsD1(fp,[{x:v}]),
       "Increasing on \\("+(leftUp?"\\left(-\\infty,"+v+"\\right)":"\\left("+v+",\\infty\\right)")+"\\)",
       "Decreasing on \\("+(leftUp?"\\left("+v+",\\infty\\right)":"\\left(-\\infty,"+v+"\\right)")+"\\)"
     ],
@@ -5758,6 +5813,7 @@ C4("e3cusp","4.3",3,["firstderiv","rewrite"],()=>{
     paper:[
       "\\(f(x)="+cTex(k,"x^{5/3}")+pTex(-k*a,"x^{2/3}")+"\\), so \\(f'(x)=\\dfrac{"+(k/gcd(k,3)===1 ? "5x"+plusTex(String(-2*a)) : cTex(k/gcd(k,3),"\\left(5x"+plusTex(String(-2*a))+"\\right)"))+"}{"+(3/gcd(k,3)===1?"":String(3/gcd(k,3)))+"\\sqrt[3]{x}}\\)",
       "Critical numbers: \\(x="+numTex(c2)+"\\) (where \\(f'=0\\)) and \\(x=0\\) (where \\(f'\\) is undefined but \\(f\\) is defined)",
+      gvRowsD1(fp,[{x:0},{x:c2,tex:numTex(c2)}]),
       "Increasing on \\(\\left(-\\infty,0\\right)\\) and \\(\\left("+numTex(c2)+",\\infty\\right)\\)",
       "Decreasing on \\(\\left(0,"+numTex(c2)+"\\right)\\)",
       "Relative maximum \\(\\left(0,0\\right)\\); relative minimum \\(\\left("+numTex(c2)+","+numTex(f(c2))+"\\right)\\)"
@@ -5789,6 +5845,7 @@ C4("e4easy","4.4",1,["concavity"],()=>{
     paper:[
       "\\(f'(x)="+polyTex([[3*a,"x^{2}"],[2*b,"x"],[c,""]])+"\\), \\(f''(x)="+polyTex([[6*a,"x"],[2*b,""]])+"\\)",
       "\\(f''=0\\) at \\(x="+xi+"\\)",
+      gvRowsD2(f2,[{x:xi}]),
       "Concave "+(upRight?"down":"up")+" on \\(\\left(-\\infty,"+xi+"\\right)\\); concave "+(upRight?"up":"down")+" on \\(\\left("+xi+",\\infty\\right)\\)",
       "Point of inflection \\(\\left("+xi+","+f(xi)+"\\right)\\)"
     ],
@@ -5818,6 +5875,7 @@ C4("e4quartic","4.4",3,["concavity"],()=>{
     paper:[
       "\\(f''(x)="+polyTex([[12,"x^{2}"],[6*B,"x"],[2*C,""]])+"=12"+par(linTex(1,-lo))+par(linTex(1,-hi))+"\\)",
       "\\(f''=0\\) at \\(x="+lo+"\\) and \\(x="+hi+"\\)",
+      gvRowsD2(f2,[{x:lo},{x:hi}]),
       "Concave up on \\(\\left(-\\infty,"+lo+"\\right)\\) and \\(\\left("+hi+",\\infty\\right)\\)",
       "Concave down on \\(\\left("+lo+","+hi+"\\right)\\)",
       "Points of inflection \\(\\left("+lo+","+numTex(f(lo))+"\\right)\\) and \\(\\left("+hi+","+numTex(f(hi))+"\\right)\\)"
@@ -7410,6 +7468,7 @@ A4("g3quartic","4.3","fr",3,["firstderiv"],()=>{
       "\\(f'(x)="+polyTex([[12,"x^{3}"],[-12*S,"x^{2}"],[12*P2,"x"],[-12*P3,""]])+"=12"+par(linTex(1,-p))+par(linTex(1,-q))+par(linTex(1,-r))+"\\)",
       "Critical numbers: \\(x="+p+",\\ "+q+",\\ "+r+"\\)",
       "Sign of \\(f'\\): \\(-\\) on \\(\\left(-\\infty,"+p+"\\right)\\), \\(+\\) on \\(\\left("+p+","+q+"\\right)\\), \\(-\\) on \\(\\left("+q+","+r+"\\right)\\), \\(+\\) on \\(\\left("+r+",\\infty\\right)\\)",
+      gvRowsD1(fp,[{x:p},{x:q},{x:r}]),
       "Increasing on \\(\\left("+p+","+q+"\\right)\\) and \\(\\left("+r+",\\infty\\right)\\)",
       "Decreasing on \\(\\left(-\\infty,"+p+"\\right)\\) and \\(\\left("+q+","+r+"\\right)\\)",
       "Relative minimum \\("+n(f(p))+"\\) at \\(x="+p+"\\); relative maximum \\("+n(f(q))+"\\) at \\(x="+q+"\\); relative minimum \\("+n(f(r))+"\\) at \\(x="+r+"\\)"
@@ -7475,6 +7534,7 @@ A4("g3ratsplit","4.3","fr",3,["firstderiv","quotient"],()=>{
       "Domain: \\(x\\ne"+a+"\\)",
       "\\(f'(x)=\\dfrac{\\left(x"+plusTex(String(-a))+"\\right)(2x)-x^{2}}{\\left(x"+plusTex(String(-a))+"\\right)^{2}}=\\dfrac{x\\left(x"+plusTex(String(-2*a))+"\\right)}{\\left(x"+plusTex(String(-a))+"\\right)^{2}}\\)",
       "Critical numbers: \\(x=0,\\ "+(2*a)+"\\). Not in domain: \\(x="+a+"\\)",
+      gvRowsD1(fp,[{x:0},{x:a},{x:2*a}]),
       "Increasing on \\(\\left(-\\infty,0\\right)\\) and \\(\\left("+(2*a)+",\\infty\\right)\\)",
       "Decreasing on \\(\\left(0,"+a+"\\right)\\) and \\(\\left("+a+","+(2*a)+"\\right)\\)",
       "Relative maximum \\(0\\) at \\(x=0\\); relative minimum \\("+(4*a)+"\\) at \\(x="+(2*a)+"\\)"
@@ -7581,6 +7641,7 @@ A4("g4rational","4.4","fr",3,["concavity","quotient"],()=>{
       "\\(f(x)=\\left(x^{2}"+plusTex(String(a))+"\\right)^{-1}\\)",
       "\\(f'(x)=\\dfrac{-2x}{\\left(x^{2}"+plusTex(String(a))+"\\right)^{2}}\\), \\(f''(x)=\\dfrac{6x^{2}"+plusTex(String(-2*a))+"}{\\left(x^{2}"+plusTex(String(a))+"\\right)^{3}}\\)",
       "\\(f''=0\\Rightarrow x^{2}="+(a/3)+"\\Rightarrow x=\\pm"+k+"\\)",
+      gvRowsD2(f2,[{x:-k},{x:k}]),
       "Concave up on \\(\\left(-\\infty,-"+k+"\\right)\\) and \\(\\left("+k+",\\infty\\right)\\); concave down on \\(\\left(-"+k+","+k+"\\right)\\)",
       "Points of inflection: \\(\\left(-"+k+","+fracTex(1,4*k*k)+"\\right)\\) and \\(\\left("+k+","+fracTex(1,4*k*k)+"\\right)\\)"
     ],
@@ -7986,6 +8047,213 @@ B4("g6mcinfl","4.6","mc",2,["sketch","concavity"],()=>{
     };
   inst.chk = ()=>checkPropChoices(pred, opts[inst.a].v, opts.filter((o,i)=>i!==inst.a).map(o=>o.v));
   return inst;
+});
+/* ============ PRACTICE QUIZ 4 SHAPES ============
+   Jase sent Graveman's Practice Quiz #4 on Oct 22. For the third time his
+   posted practice turns out to be a near-direct predictor, and this one tells
+   us the FORMAT as much as the content. Five problems:
+
+     1) y = x^2 - 4x + 3        the seven-item list PLUS the full six-column table
+     2) f = x^3 - 6x^2 + 15     4.3 only: f' table, intervals only, and then
+                                "which, if any, of the extreme values are absolute"
+     3) f = x^2/(x^2 - 1)       4.4 only: f'' table, intervals only
+     4) f = x/(x^2 - 4)         the seven-item list, NO table at all
+     5) f = 3x^4 + 4x^3         table given, conclusions and sketch wanted.
+                                At x = 0 both f' and f'' are zero: no extremum,
+                                but it IS an inflection point.
+
+   Each template below is one of those five, with the numbers moving. */
+
+const QZ4 = [];
+function Z4(id, s, t, lvl, tags, make){ QZ4.push({id:id, s:s, t:t, lvl:lvl, tags:tags, make:make}); }
+
+/* ---------- quiz 4 #1 · parabola, full ceremony ---------- */
+Z4("z4parab","4.6","fr",1,["sketch","firstderiv","concavity"],()=>{
+  const r1=nz(-6,6); let r2=nz(-6,6);
+  while(r2===r1) r2=nz(-6,6);
+  const p=Math.min(r1,r2), q=Math.max(r1,r2);
+  const B=-(p+q), C=p*q;
+  if(Math.abs(B)%2) return null;                 // keep the vertex at a whole number
+  const v=-B/2;
+  const f  = x => x*x + B*x + C;
+  const fp = x => 2*x + B;
+  const f2 = () => 2;
+  const ftex = polyTex([[1,"x^{2}"],[B,"x"],[C,""]]);
+  return {sig:["z4parab",p,q],
+    q:"For \\(y="+ftex+"\\), find the domain, the vertical and horizontal asymptotes, the \\(x\\)- and \\(y\\)-intercepts, the critical numbers and the inflection numbers. Then complete the table.",
+    st:[
+      {m:"Take the list first, because every item on it is quick and each one is worth points on its own.",w:"He prints the list with a blank beside each entry. A blank entry scores zero even if your table is perfect."},
+      {m:"Domain: all real numbers, since a polynomial is defined everywhere. For the same reason there are \\(\\mathbf{\\text{no vertical asymptotes}}\\) and \\(\\mathbf{\\text{no horizontal asymptotes}}\\).",w:"Write \"none\" in those blanks rather than leaving them empty. An empty blank reads as unanswered."},
+      {m:"\\(x\\)-intercepts: \\("+ftex+"="+par(linTex(1,-p))+par(linTex(1,-q))+"=0\\), so \\(\\mathbf{\\left("+p+",0\\right)}\\) and \\(\\mathbf{\\left("+q+",0\\right)}\\).",w:"Factor rather than reaching for the quadratic formula when the roots are whole numbers.",solve:1},
+      {m:"\\(y\\)-intercept: set \\(x=0\\), giving \\(\\mathbf{\\left(0,"+C+"\\right)}\\).",w:"That is just the constant term."},
+      {m:"\\(y'="+linTex(2,B)+"\\), which is zero at \\(x="+v+"\\). So the only critical number is \\(\\mathbf{x="+v+"}\\).",w:"",solve:1},
+      {m:"\\(y''=2\\), a constant. It is never zero, so there are \\(\\mathbf{\\text{no inflection numbers}}\\) and the parabola is concave up everywhere.",w:"A constant second derivative is the giveaway. Every parabola has exactly one critical number and no inflection point."},
+      {m:"Now the table. \\(y'\\) is negative left of \\(x="+v+"\\) and positive right of it, and \\(y''=2>0\\) on every row.",w:"The special \\(x\\) value gets its own row between the two intervals, with \\(f(x)\\) filled in and \\(f'=0\\)."},
+      {m:"At \\(x="+v+"\\), \\(y'\\) goes from negative to positive with \\(y''>0\\), so it is a \\(\\mathbf{\\text{relative minimum at }\\left("+v+","+f(v)+"\\right)}\\). It is also the ABSOLUTE minimum, since the parabola opens upward.",w:"Worth saying out loud: for an upward parabola the one relative minimum is the absolute minimum, and there is no absolute maximum."}
+    ],
+    paper:[
+      gvList([["Domain","all real numbers"],
+              ["V.A.","none"],
+              ["H.A.","none"],
+              ["\\(x\\)-ints.","\\(\\left("+p+",0\\right)\\), \\(\\left("+q+",0\\right)\\)"],
+              ["\\(y\\)-int.","\\(\\left(0,"+C+"\\right)\\)"],
+              ["Critical numbers","\\(x="+v+"\\)"],
+              ["Inflection numbers","none"]]),
+      "\\(y'="+linTex(2,B)+"\\), \\(y''=2\\)",
+      gvRows(f,fp,f2,[{x:v,ytex:String(f(v))}]),
+      "Relative minimum \\(\\left("+v+","+f(v)+"\\right)\\), which is also the absolute minimum. No absolute maximum."
+    ],
+    chk:()=>checkCritical(f,fp,[v],v-6,v+6)
+        && checkCriticalComplete(fp,[v],v-6,v+6)
+        && checkSignPattern(fp,[[v-6,v-0.3,-1],[v+0.3,v+6,1]])
+        && near(f(p),0) && near(f(q),0) && near(f(0),C)};
+});
+
+/* ---------- quiz 4 #2 · cubic, f' table only, and the absolute question ---------- */
+Z4("z4cubic","4.3","fr",2,["firstderiv","extrema"],()=>{
+  const c=nz(1,5), D=nz(-20,20);                 // f = x^3 - (3c/2)... keep both criticals whole
+  const f  = x => x*x*x - 3*c*x*x + D;
+  const fp = x => 3*x*x - 6*c*x;                 // = 3x(x - 2c)
+  const hi = 2*c;
+  const ftex = polyTex([[1,"x^{3}"],[-3*c,"x^{2}"],[D,""]]);
+  return {sig:["z4cubic",c,D],
+    q:"For \\(f(x)="+ftex+"\\): (a) find the open intervals on which the function is increasing and decreasing; (b) identify the local extreme values and the \\(x\\)-values where they are taken on; (c) which, if any, of the extreme values are absolute?",
+    st:[
+      {m:"\\(f'(x)="+polyTex([[3,"x^{2}"],[-6*c,"x"]])+"=3x"+par(linTex(1,-hi))+"\\)",w:"Factor out the \\(3x\\) from BOTH terms. Pulling a common factor out of only one term is the error that cost five points on Test 3."},
+      {m:"Critical numbers \\(x=0\\) and \\(x="+hi+"\\). Those two split the line into three intervals.",w:"",solve:1},
+      {m:"Signs: left of \\(0\\) both factors are negative so \\(f'>0\\); between \\(0\\) and \\("+hi+"\\) the first is positive and the second negative so \\(f'<0\\); past \\("+hi+"\\) both are positive so \\(f'>0\\).",w:"Only the sign of each factor matters, never its size."},
+      {m:"(a) \\(\\mathbf{\\text{Increasing on }\\left(-\\infty,0\\right)\\text{ and }\\left("+hi+",\\infty\\right)}\\); \\(\\mathbf{\\text{decreasing on }\\left(0,"+hi+"\\right)}\\)",w:"Open intervals, in terms of \\(x\\)."},
+      {m:"(b) First Derivative Test: \\(+\\) to \\(-\\) at \\(x=0\\) is a \\(\\mathbf{\\text{local maximum of }"+f(0)+"\\text{ at }x=0}\\); \\(-\\) to \\(+\\) at \\(x="+hi+"\\) is a \\(\\mathbf{\\text{local minimum of }"+f(hi)+"\\text{ at }x="+hi+"}\\).",w:"He asks for the VALUE and the \\(x\\) it happens at, so give both. The value comes from \\(f\\), not \\(f'\\)."},
+      {m:"(c) Neither is absolute. The domain is all of \\(\\mathbb{R}\\), and as \\(x\\to\\infty\\) we get \\(f\\to\\infty\\), so nothing is an absolute maximum; as \\(x\\to-\\infty\\) we get \\(f\\to-\\infty\\), so nothing is an absolute minimum.",w:"Every cubic does this. An odd-degree polynomial on an unbounded domain has NO absolute extrema, and saying so in one sentence about end behaviour is the whole of part (c)."}
+    ],
+    paper:[
+      "\\(f'(x)="+polyTex([[3,"x^{2}"],[-6*c,"x"]])+"=3x"+par(linTex(1,-hi))+"\\); critical numbers \\(x=0,\\ "+hi+"\\)",
+      gvRowsD1(fp,[{x:0},{x:hi}]),
+      "(a) Increasing on \\(\\left(-\\infty,0\\right)\\) and \\(\\left("+hi+",\\infty\\right)\\); decreasing on \\(\\left(0,"+hi+"\\right)\\)",
+      "(b) Local maximum \\("+f(0)+"\\) at \\(x=0\\); local minimum \\("+f(hi)+"\\) at \\(x="+hi+"\\)",
+      "(c) Neither is absolute: \\(f\\to\\infty\\) as \\(x\\to\\infty\\) and \\(f\\to-\\infty\\) as \\(x\\to-\\infty\\)"
+    ],
+    chk:()=>checkCritical(f,fp,[0,hi],-hi-3,hi+3)
+        && checkCriticalComplete(fp,[0,hi],-hi-3,hi+3)
+        && checkSignPattern(fp,[[-hi-3,-0.3,1],[0.3,hi-0.3,-1],[hi+0.3,hi+3,1]])
+        && f(1e4) > 1e6 && f(-1e4) < -1e6};
+});
+
+/* ---------- quiz 4 #3 · concavity only, f'' table only ---------- */
+Z4("z4conc","4.4","fr",3,["concavity","quotient"],()=>{
+  const b=R(1,5), b2=b*b;
+  // f = x^2/(x^2 - b^2);  f'' = (6x^2 + 2b^2)/(x^2 - b^2)^3, numerator always positive
+  const f  = x => x*x/(x*x - b2);
+  const f2 = x => (6*b2*x*x + 2*b2*b2)/Math.pow(x*x - b2, 3);
+  return {sig:["z4conc",b],
+    q:"Determine the open intervals on which the graph of \\(f(x)=\\dfrac{x^{2}}{x^{2}-"+b2+"}\\) is concave upward and concave downward.",
+    st:[
+      {m:"Only concavity is asked, so only \\(f''\\) matters. But the domain still has to come first, because \\(x=\\pm"+b+"\\) breaks the line whether or not \\(f''\\) is zero there.",w:"A point outside the domain ends an interval exactly like a root does."},
+      {m:"Quotient rule once: \\(f'(x)=\\dfrac{2x\\left(x^{2}-"+b2+"\\right)-x^{2}(2x)}{\\left(x^{2}-"+b2+"\\right)^{2}}=\\dfrac{"+cTex(-2*b2,"x")+"}{\\left(x^{2}-"+b2+"\\right)^{2}}\\)",w:"The \\(x^{3}\\) terms cancel, which is what keeps this workable by hand."},
+      {m:"Quotient rule again and collect: \\(f''(x)=\\dfrac{"+polyTex([[6*b2,"x^{2}"],[2*b2*b2,""]])+"}{\\left(x^{2}-"+b2+"\\right)^{3}}\\)",w:"Factoring \\(\\left(x^{2}-"+b2+"\\right)^{2}\\) out of the top is what reduces the power on the bottom from 4 to 3."},
+      {m:"The numerator \\("+polyTex([[6*b2,"x^{2}"],[2*b2*b2,""]])+"\\) is a positive number plus a positive number, so it is ALWAYS positive. The sign of \\(f''\\) is decided entirely by \\(\\left(x^{2}-"+b2+"\\right)^{3}\\).",w:"An odd power keeps the sign of what is inside, so this is just the sign of \\(x^{2}-"+b2+"\\)."},
+      {m:"\\(x^{2}-"+b2+"\\) is positive when \\(|x|>"+b+"\\) and negative when \\(|x|<"+b+"\\).",w:""},
+      {m:"\\(\\mathbf{\\text{CC upward on }\\left(-\\infty,"+(-b)+"\\right)\\text{ and }\\left("+b+",\\infty\\right)}\\); \\(\\mathbf{\\text{CC downward on }\\left("+(-b)+","+b+"\\right)}\\)",w:"There are NO inflection points. The concavity changes at \\(x=\\pm"+b+"\\), but the function does not exist there, so those are vertical asymptotes rather than inflection points."}
+    ],
+    paper:[
+      "Domain: all \\(x\\ne\\pm"+b+"\\), so \\(x=\\pm"+b+"\\) break the line",
+      "\\(f''(x)=\\dfrac{"+polyTex([[6*b2,"x^{2}"],[2*b2*b2,""]])+"}{\\left(x^{2}-"+b2+"\\right)^{3}}\\); numerator always positive, so the sign follows \\(x^{2}-"+b2+"\\)",
+      gvRowsD2(f2,[{x:-b},{x:b}]),
+      "The function is CC upward on \\(\\left(-\\infty,"+(-b)+"\\right)\\) and \\(\\left("+b+",\\infty\\right)\\)",
+      "The function is CC downward on \\(\\left("+(-b)+","+b+"\\right)\\)",
+      "No points of inflection: \\(x=\\pm"+b+"\\) are vertical asymptotes, not inflection points"
+    ],
+    chk:()=>checkSignPattern(f2,[[-b-4,-b-0.3,1],[-b+0.3,b-0.3,-1],[b+0.3,b+4,1]])
+        && !isFinite(f(b)) && !isFinite(f(-b))
+        && near(f2(0), -2/b2, 1e-9)};
+});
+
+/* ---------- quiz 4 #4 · the seven-item list on a rational, no table ---------- */
+Z4("z4list","4.6","fr",2,["sketch","limits","quotient"],()=>{
+  const k=R(1,4), b=R(1,5), b2=b*b;
+  // f = kx/(x^2 - b^2): odd, two vertical asymptotes, NO critical numbers,
+  // one inflection number at the origin. Quiz 4 problem 4 exactly.
+  const f  = x => k*x/(x*x - b2);
+  const fp = x => -k*(x*x + b2)/Math.pow(x*x - b2, 2);
+  const f2 = x => 2*k*x*(x*x + 3*b2)/Math.pow(x*x - b2, 3);
+  return {sig:["z4list",k,b],
+    q:"For \\(f(x)=\\dfrac{"+cTex(k,"x")+"}{x^{2}-"+b2+"}\\), find the domain, the vertical and horizontal asymptotes, the \\(x\\)- and \\(y\\)-intercepts, the critical numbers and the inflection numbers.",
+    st:[
+      {m:"Domain first. \\(x^{2}-"+b2+"="+par(linTex(1,-b))+par(linTex(1,b))+"\\) is zero at \\(x=\\pm"+b+"\\), so the \\(\\mathbf{\\text{domain is all }x\\ne\\pm"+b+"}\\).",w:"Difference of squares, faster than the quadratic formula."},
+      {m:"The numerator \\("+cTex(k,"x")+"\\) is not zero at \\(x=\\pm"+b+"\\), so both are genuine \\(\\mathbf{\\text{vertical asymptotes: }x="+(-b)+"\\text{ and }x="+b+"}\\).",w:"Always check the numerator before calling something an asymptote. A shared zero would be a hole instead."},
+      {m:"Degrees: the top is degree 1, the bottom degree 2. The bottom grows faster, so \\(\\mathbf{y=0}\\) is the horizontal asymptote.",w:"Top degree smaller than bottom degree always gives the \\(x\\)-axis."},
+      {m:"Intercepts: the numerator is zero only at \\(x=0\\), and \\(f(0)=0\\), so \\(\\mathbf{(0,0)}\\) is both the \\(x\\)-intercept and the \\(y\\)-intercept.",w:"One point does both jobs here, but write it on both blanks."},
+      {m:"Quotient rule: \\(f'(x)=\\dfrac{"+cTex(k,"")+"\\left(x^{2}-"+b2+"\\right)-"+cTex(k,"x")+"(2x)}{\\left(x^{2}-"+b2+"\\right)^{2}}=\\dfrac{"+cTex(-k,"\\left(x^{2}"+plusTex(String(b2))+"\\right)")+"}{\\left(x^{2}-"+b2+"\\right)^{2}}\\)",w:"The top collects to \\("+cTex(-k,"x^{2}")+pTex(-k*b2,"")+"\\), which factors as \\("+cTex(-k,"")+"\\left(x^{2}"+plusTex(String(b2))+"\\right)\\)."},
+      {m:"\\(x^{2}"+plusTex(String(b2))+"\\) is never zero, so the numerator of \\(f'\\) is never zero: there are \\(\\mathbf{\\text{no critical numbers}}\\).",w:"\\(f'\\) is undefined at \\(x=\\pm"+b+"\\), but \\(f\\) is undefined there too, so those do not count. The function is decreasing on every piece of its domain."},
+      {m:"Differentiating once more and collecting gives \\(f''(x)=\\dfrac{"+cTex(2*k,"x")+"\\left(x^{2}"+plusTex(String(3*b2))+"\\right)}{\\left(x^{2}-"+b2+"\\right)^{3}}\\), whose numerator is zero only at \\(x=0\\).",w:"\\(x^{2}"+plusTex(String(3*b2))+"\\) is never zero, so \\(x=0\\) is the only candidate."},
+      {m:"The sign of \\(f''\\) really does change at \\(x=0\\), so the \\(\\mathbf{\\text{inflection number is }x=0}\\).",w:"He asks for inflection NUMBERS, so the \\(x\\) value alone answers it. A point would need the \\(y\\) as well, and here that is \\((0,0)\\) anyway."}
+    ],
+    paper:[
+      gvList([["Domain","all \\(x\\ne\\pm"+b+"\\)"],
+              ["V.A.","\\(x="+(-b)+"\\), \\(x="+b+"\\)"],
+              ["H.A.","\\(y=0\\)"],
+              ["\\(x\\)-ints.","\\(\\left(0,0\\right)\\)"],
+              ["\\(y\\)-int.","\\(\\left(0,0\\right)\\)"],
+              ["Critical numbers","none"],
+              ["Inflection numbers","\\(x=0\\)"]]),
+      "\\(f'(x)=\\dfrac{"+cTex(-k,"\\left(x^{2}"+plusTex(String(b2))+"\\right)")+"}{\\left(x^{2}-"+b2+"\\right)^{2}}\\), never zero, so no critical numbers",
+      "\\(f''(x)=\\dfrac{"+cTex(2*k,"x")+"\\left(x^{2}"+plusTex(String(3*b2))+"\\right)}{\\left(x^{2}-"+b2+"\\right)^{3}}\\), zero only at \\(x=0\\)"
+    ],
+    chk:()=>checkLimitInf(f,1,0) && checkLimitInf(f,-1,0)
+        && !isFinite(f(b)) && !isFinite(f(-b))
+        && near(f(0),0)
+        && checkCriticalComplete(fp,[],-b+0.2,b-0.2)
+        && checkInflection(f2,[0],Math.min(0.4,b/3))
+        && signThroughout(fp, b+0.3, b+4, -1)};
+});
+
+/* ---------- quiz 4 #5 · f' and f'' both zero at the same point ---------- */
+Z4("z4quartic","4.6","fr",3,["sketch","firstderiv","concavity"],()=>{
+  // f = a x^4 + b x^3. f' = x^2(4a x + 3b), f'' = 6x(2a x + b).
+  // Pairs chosen so both breakpoints print cleanly; (3,4) is the quiz's own.
+  const pair = pk([[3,4],[1,4],[1,-4],[1,2],[1,-2],[3,-4],[1,6],[1,-6]]);
+  const a=pair[0], B=pair[1];
+  const c  = -3*B/(4*a);                        // the other critical number
+  const ip = -B/(2*a);                          // the other inflection number
+  const cT = fracTex(-3*B, 4*a), ipT = fracTex(-B, 2*a);
+  const xi = -B/a;                              // the other x-intercept
+  const f  = x => a*Math.pow(x,4) + B*Math.pow(x,3);
+  const fp = x => 4*a*Math.pow(x,3) + 3*B*x*x;
+  const f2 = x => 12*a*x*x + 6*B*x;
+  const kind = c < 0 ? (a>0?"minimum":"maximum") : (a>0?"minimum":"maximum");
+  return {sig:["z4quartic",a,B],
+    q:"For \\(f(x)="+polyTex([[a,"x^{4}"],[B,"x^{3}"]])+"\\), find the intervals of increase and decrease, every relative extremum, the intervals of concavity and every point of inflection. Then say what happens at \\(x=0\\).",
+    st:[
+      {m:"\\(f'(x)="+polyTex([[4*a,"x^{3}"],[3*B,"x^{2}"]])+"=x^{2}"+par(linTex(4*a,3*B))+"\\)",w:"Factor \\(x^{2}\\) out of both terms. The squared factor is the whole point of this problem."},
+      {m:"So \\(f'=0\\) at \\(x=0\\) and \\(x="+cT+"\\). Two critical numbers, three intervals.",w:"",solve:1},
+      {m:"\\(f''(x)="+polyTex([[12*a,"x^{2}"],[6*B,"x"]])+"=6x"+par(linTex(2*a,B))+"\\), zero at \\(x=0\\) and \\(x="+ipT+"\\).",w:"Notice \\(x=0\\) appears on BOTH lists. That is what makes the origin the interesting point."},
+      {m:"The \\(x^{2}\\) in \\(f'\\) is an EVEN power, so it does not change sign at \\(x=0\\). The sign of \\(f'\\) there follows \\("+par(linTex(4*a,3*B))+"\\) alone, which is "+(4*a*0+3*B>0?"positive":"negative")+" on both sides of the origin.",w:"This is the multiplicity rule from the board: a repeated root does not flip the sign, the graph just touches and turns back."},
+      {m:"So at \\(x=0\\) we have \\(f'=0\\) and \\(f''=0\\), the Second Derivative Test is INCONCLUSIVE, and the First Derivative Test shows no sign change, so there is \\(\\mathbf{\\text{NO extremum at }x=0}\\).",w:"Inconclusive does not mean no extremum, and it does not mean there is one. You have to go and look at the sign of \\(f'\\)."},
+      {m:"But \\(f''\\) DOES change sign at \\(x=0\\), because its \\(x\\) factor is a first power. So \\(\\mathbf{\\left(0,0\\right)\\text{ IS a point of inflection}}\\).",w:"The same \\(x\\) value is a dud for \\(f'\\) and genuine for \\(f''\\). Checking the two separately is the only way to get this right."},
+      {m:"At \\(x="+cT+"\\) the factor \\("+par(linTex(4*a,3*B))+"\\) does change sign, so that is a genuine relative "+kind+", value \\(f\\left("+cT+"\\right)="+fracTex(-27*B*B*B*B, 256*a*a*a)+"\\).",w:"",approx:1},
+      {m:"And at \\(x="+ipT+"\\), \\(f''\\) changes sign again, giving a second point of inflection.",w:"A quartic can have two inflection points, and this one does: the origin and \\(x="+ipT+"\\)."}
+    ],
+    paper:[
+      "\\(f'(x)=x^{2}"+par(linTex(4*a,3*B))+"\\); critical numbers \\(x=0,\\ "+cT+"\\)",
+      "\\(f''(x)=6x"+par(linTex(2*a,B))+"\\); inflection numbers \\(x=0,\\ "+ipT+"\\)",
+      "\\(x\\)-intercepts \\(\\left(0,0\\right)\\) and \\(\\left("+fracTex(-B,a)+",0\\right)\\); \\(y\\)-intercept \\(\\left(0,0\\right)\\); domain all reals, no asymptotes",
+      gvRows(f,fp,f2, (c<ip?[{x:c,tex:cT,ytex:fracTex(-27*B*B*B*B,256*a*a*a)},{x:ip,tex:ipT,ytex:fracTex(-B*B*B*B,16*a*a*a)},{x:0,ytex:"0"}]
+                            :[{x:0,ytex:"0"},{x:ip,tex:ipT,ytex:fracTex(-B*B*B*B,16*a*a*a)},{x:c,tex:cT,ytex:fracTex(-27*B*B*B*B,256*a*a*a)}])),
+      "Relative "+kind+" \\("+fracTex(-27*B*B*B*B,256*a*a*a)+"\\) at \\(x="+cT+"\\)",
+      "At \\(x=0\\): \\(f'=0\\) and \\(f''=0\\), so the Second Derivative Test is inconclusive. \\(f'\\) does NOT change sign, so there is no extremum; \\(f''\\) DOES change sign, so \\(\\left(0,0\\right)\\) is a point of inflection",
+      "Points of inflection \\(\\left(0,0\\right)\\) and \\(\\left("+ipT+","+fracTex(-B*B*B*B,16*a*a*a)+"\\right)\\)"
+    ],
+    chk:()=>{
+      const lo=Math.min(0,c,ip)-2, hi2=Math.max(0,c,ip)+2;
+      return checkCritical(f,fp,[0,c],lo,hi2)
+        && checkCriticalComplete(fp,[0,c],lo,hi2)
+        && extremumKind(fp,c,Math.min(0.3,Math.abs(c)/3)) === kind.slice(0,3)
+        && Math.abs(fp(0))<1e-12 && Math.abs(f2(0))<1e-12
+        && checkInflection(f2,[0,ip],Math.min(0.3,Math.abs(ip)/3))
+        && near(f(c), -27*Math.pow(B,4)/(256*Math.pow(a,3)))
+        && near(f(ip), -Math.pow(B,4)/(16*Math.pow(a,3)))
+        && near(f(xi), 0);
+    }};
 });
 /* ============================ LEVELS AND TOPICS ============================
    Two filter axes on top of section and format.
@@ -8513,11 +8781,17 @@ if(REF32){
    Everything from Test 3 stays LOADED and one chip away, because the final is
    cumulative. Only the default scope and the weights move. */
 
+/* Practice Quiz #4, sent Oct 22. These five mirror his five problems and carry
+   the heaviest weight in the build, because his posted practice has predicted
+   the graded version three times running. */
+GENERATORS.push.apply(GENERATORS, QZ4);
+QZ4.forEach(g=>{ TEMPLATE_META[g.id] = {lvl:g.lvl, tags:g.tags}; });
 GENERATORS.push.apply(GENERATORS, T4A);
 GENERATORS.push.apply(GENERATORS, T4B);
 T4B.forEach(g=>{ TEMPLATE_META[g.id] = {lvl:g.lvl, tags:g.tags}; });
 T4A.forEach(g=>{ TEMPLATE_META[g.id] = {lvl:g.lvl, tags:g.tags}; });
 Object.assign(TEMPLATE_W, {
+  z4parab:9, z4cubic:10, z4conc:9, z4list:10, z4quartic:10,
   g3quartic:7, g3trig:7, g3ratsplit:7, g3mcint:5, g3tfnosign:5,
   g4trig:7, g4rational:7, g4sdtrecip:7, g4mcinfl:5, g4tfconc:5,
   g5bigger:7, g5conj:7, g5exp:7, g5mcha:6, g5tfcross:5,
@@ -8672,7 +8946,7 @@ function tidyInstance(p){
      4.6 write-up; both get the same tidy pass over every string */
   if(Array.isArray(p.paper)) p.paper = p.paper.map(e=>{
     if(typeof e === "string") return tidyTex(e);
-    if(e && e.table) return {table:{head:e.table.head.map(tidyTex),
+    if(e && e.table) return {table:{head:e.table.head ? e.table.head.map(tidyTex) : null,
                                     rows:e.table.rows.map(r=>r.map(tidyTex))}};
     return e;
   });
@@ -9039,11 +9313,13 @@ function renderPaper(p, withNote){
     if(entry && entry.table){
       flush();
       const wrap = el("div","gvt-wrap");
-      const tb = el("table","gvt");
-      const thead = el("thead");
-      const hr = el("tr");
-      entry.table.head.forEach(h=>hr.appendChild(el("th",null,mathSafe(h))));
-      thead.appendChild(hr); tb.appendChild(thead);
+      const tb = el("table", entry.table.head ? "gvt" : "gvt gvt-list");
+      if(entry.table.head){                      // the seven-item list has no header row
+        const thead = el("thead");
+        const hr = el("tr");
+        entry.table.head.forEach(h=>hr.appendChild(el("th",null,mathSafe(h))));
+        thead.appendChild(hr); tb.appendChild(thead);
+      }
       const tbody = el("tbody");
       entry.table.rows.forEach(r=>{
         const tr = el("tr");
