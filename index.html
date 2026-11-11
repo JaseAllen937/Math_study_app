@@ -729,7 +729,9 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
 window.MathJax = {
   tex:{
     inlineMath:[['\\(','\\)']],
-    displayMath:[['$$','$$'],['\\[','\\]']]
+    displayMath:[['$$','$$'],['\\[','\\]']],
+    /* bold answers keep italic letters and upright sin/cos, instead of all-upright \mathbf */
+    macros:{mathbf:['\\boldsymbol{#1}',1]}
   },
   svg:{fontCache:'global'},
   startup:{typeset:false},
@@ -10468,13 +10470,20 @@ N9("d4ftc2","5.4","fr",3,["defint","ftc"],()=>{
     q = ddx+"\\left[\\displaystyle\\int_{"+a0+"}^{"+l.tex+"}"+fTd+"\\,dt\\right]";
     ans = fac(U,false);
     F = x => pVal(P, l.f(x));  A = x => f(l.f(x))*l.fp(x);
+    /* only show the raw substitution when simplifying it actually does something */
+    const needRaw = sorted.some(p=>p[1]>1) || (U.mono && U.mono[0]!==1 && sorted.some(p=>p[1]>=1));
+    const boardChain = U.sin && G.T.length===2 && G.T[0][1]===3 && G.T[1][1]===1 && G.T[1][0]===2;
+    const boardPow = U.mono && U.mono[0]===1 && U.mono[1]===2 && n===10 && G.T[0][1]===3;
     st = [
-      {m:"The upper limit is \\(u="+l.tex+"\\), not \\(x\\). That makes it a chain rule: \\("+ddx+"\\displaystyle\\int_{a}^{u}f(t)\\,dt=f(u)\\cdot u'\\).",w:"Put \\(u\\) in for \\(t\\), then multiply by the derivative of the limit. Forgetting the \\(u'\\) is the standard lost point."},
-      {m:"\\(u'="+l.up+"\\)",w:"Derivative of the upper limit only. The constant lower limit contributes nothing."},
-      {m:"\\(f(u)\\cdot u'="+fac(U,true)+"\\)",w:"Substitute first, exactly as written, before you simplify anything."},
-      {m:"\\(\\mathbf{"+ans+"}\\)",w:(U.sin?"His board: \\(\\left(\\sin^{3}x+2\\sin x\\right)\\cos x\\).":"Simplify inside the parentheses with the power-of-a-power rule. His board: \\(\\left(x^{6}+1\\right)^{10}\\left(2x\\right)\\).")}
+      {m:"The upper limit is \\(u="+l.tex+"\\), not \\(x\\), so this is the chain form: \\("+ddx+"\\displaystyle\\int_{a}^{u}f(t)\\,dt=f(u)\\cdot u'\\), with \\(u'="+l.up+"\\).",w:"Put \\(u\\) in for \\(t\\), then multiply by the derivative of the upper limit. Forgetting the \\(u'\\) is the standard lost point. The constant on the bottom plays no part."}
     ];
-    paper = ["\\("+q+"="+fac(U,true)+"="+ans+"\\)"];
+    if(needRaw) st.push({m:"\\(f(u)\\cdot u'="+fac(U,true)+"\\)",w:"Substitute exactly as written first, then simplify inside the parentheses."});
+    st.push({m:"\\("+(needRaw?"":"f(u)\\cdot u'=")+"\\mathbf{"+ans+"}\\)",
+      w: boardChain ? "This is his board problem: \\(\\left(\\sin^{3}x+2\\sin x\\right)\\cos x\\)."
+       : boardPow ? "This is his board problem: \\(\\left(x^{6}+1\\right)^{10}\\left(2x\\right)\\)."
+       : needRaw ? "Power of a power multiplies the exponents: \\(\\left(x^{m}\\right)^{k}=x^{mk}\\). Leave it as a product; he does not expand it."
+       : "Leave it as a product. Nothing to expand."});
+    paper = ["\\("+q+"="+(needRaw ? fac(U,true)+"=" : "")+ans+"\\)"];
   } else {
     const u = lim(U), v = lim(L);
     q = ddx+"\\left[\\displaystyle\\int_{"+v.tex+"}^{"+u.tex+"}"+fTd+"\\,dt\\right]";
@@ -10485,7 +10494,9 @@ N9("d4ftc2","5.4","fr",3,["defint","ftc"],()=>{
       {m:"Both limits have \\(x\\) in them. Split at any constant \\(c\\): \\(\\displaystyle\\int_{"+v.tex+"}^{"+u.tex+"}=\\int_{"+v.tex+"}^{c}+\\int_{c}^{"+u.tex+"}=-\\int_{c}^{"+v.tex+"}+\\int_{c}^{"+u.tex+"}\\).",w:"Additive interval property, then swap the limits on the first piece. Now each piece has a constant on the bottom, which is the shape the theorem needs."},
       {m:"Each piece is a chain rule: \\(u="+u.tex+"\\), \\(u'="+u.up+"\\); \\(v="+v.tex+"\\), \\(v'="+v.up+"\\).",w:"Two limits, two derivatives."},
       {m:"\\(f(u)\\,u'-f(v)\\,v'="+fac(U,true)+"-"+fac(L,true)+"\\)",w:"Top limit plus, bottom limit minus. The minus came from the swap."},
-      {m:"\\(\\mathbf{"+ans+"}\\)",w:"His board: \\(\\left(16x^{6}+1\\right)^{10}\\left(12x^{2}\\right)-\\left(x^{4}+1\\right)^{10}\\left(2x\\right)\\)."}
+      {m:"\\(\\mathbf{"+ans+"}\\)",w:(n===10 && G.T[0][1]===2 && U.mono[0]===4 && U.mono[1]===3 && L.mono[0]===1 && L.mono[1]===2)
+        ? "This is his board problem: \\(\\left(16x^{6}+1\\right)^{10}\\left(12x^{2}\\right)-\\left(x^{4}+1\\right)^{10}\\left(2x\\right)\\)."
+        : "Top limit term minus bottom limit term, each with its own chain factor."}
     ];
     paper = [
       "\\("+q+"="+ddx+"\\left[-\\displaystyle\\int_{c}^{"+v.tex+"}"+fTd+"\\,dt+\\int_{c}^{"+u.tex+"}"+fTd+"\\,dt\\right]\\)",
@@ -11953,7 +11964,15 @@ function instanceOf(g, allowRepeat, tries){
     try{ ok = inst.chk(); }catch(e){ ok=false; }
     if(!ok) continue;                    // verification failed — silently discard
     seenSigs.add(sig); trimSeen();
-    return tidyInstance({t:g.t, s:g.s, q:inst.q, c:inst.c, a:inst.a, e:inst.e, st:inst.st,
+    /* The Chapter 4.7-5.4 templates return {choices, key} instead of {c, a}.
+       Map them here: a TF key becomes a boolean, an MC key becomes the index of
+       the keyed option after shuffling (the templates list the key first). */
+    let c = inst.c, a = inst.a;
+    if(Array.isArray(inst.choices) && inst.key !== undefined){
+      if(g.t === "tf"){ a = (inst.key === "True"); c = undefined; }
+      else { c = shuffle(inst.choices.slice()); a = c.indexOf(inst.key); }
+    }
+    return tidyInstance({t:g.t, s:g.s, q:inst.q, c:c, a:a, e:inst.e, st:inst.st,
             paper:inst.paper,
             gid:"p"+sig+"#"+seenSigs.size, tid:g.id, proc:true});
   }
@@ -12324,7 +12343,14 @@ function renderPaper(p, withNote){
     k++;
   });
   flush();
-  if(withNote) pb.appendChild(el("p","pnote","Every line here is worth points. Units on the final answer, and intervals written open and in terms of \\(x\\)."));
+  if(withNote){
+    const ch5 = String(p.s||"").charAt(0)==="5";
+    const opt = String(p.s||"")==="4.7";
+    pb.appendChild(el("p","pnote", ch5
+      ? "Every line here is worth points. Show the setup, not just the answer, and keep his notation."
+      : opt ? "Every line here is worth points. Label the primary and constraint equations, circle the applied domain, and end with a sentence with units."
+      : "Every line here is worth points. Units on the final answer, and intervals written open and in terms of \\(x\\)."));
+  }
   return pb;
 }
 
@@ -12665,7 +12691,13 @@ function renderCard(){
       v.appendChild(el("span","vlabel",good?"Correct":"Not quite"));
       const ans = p.t==="tf" ? (p.a?"True":"False") : "ABCD"[correctIdx]+" · "+mathSafe(p.c[correctIdx]);
       v.appendChild(el("p",null,"<b>Answer: "+ans+"</b>"));
-      v.appendChild(el("p",null,mathSafe(p.e)));
+      if(p.e) v.appendChild(el("p",null,mathSafe(p.e)));
+      /* the 4.7-5.4 templates put their WHY in steps, not in e */
+      if(!p.e && p.st && p.st.length){
+        const ol = el("ol","steps");
+        p.st.forEach(s=>ol.appendChild(el("li",null, mathSafe(s.m)+(s.w?"<span class='why'>"+mathSafe(s.w)+"</span>":""))));
+        v.appendChild(ol);
+      }
     }else{
       v = el("div","verdict");
       v.appendChild(el("span","vlabel","Worked solution"));
@@ -13280,6 +13312,11 @@ function mockCard(it, n){
       const ans = p.t==="tf" ? (p.a?"True":"False") : "ABCD"[correctIdx]+", "+mathSafe(p.c[correctIdx]);
       v.appendChild(el("p",null,"<b>Answer: "+ans+"</b>"));
       if(p.e) v.appendChild(el("p",null,mathSafe(p.e)));
+      if(!p.e && p.st && p.st.length){
+        const ol=el("ol","steps");
+        p.st.forEach(s=>ol.appendChild(el("li",null, mathSafe(s.m)+(s.w?"<span class='why'>"+mathSafe(s.w)+"</span>":""))));
+        v.appendChild(ol);
+      }
       card.appendChild(v);
     }
   }else{
